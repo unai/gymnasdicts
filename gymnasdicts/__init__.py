@@ -1,5 +1,49 @@
+from __future__ import annotations
 """Top-level package for gymnasdicts."""
 
 __author__ = """George Burton"""
 __email__ = 'george.burton@unai.com'
 __version__ = '0.1.0'
+
+
+from typing import Callable, Iterator
+
+from gymnasdicts import base
+
+
+class Query:
+    def __init__(self, json_data: Iterator[base.JSON]) -> None:
+        self.json_data = json_data
+
+    def where(self, *conditions: Callable) -> Query:
+        return Query(base.where(self.json_data, *conditions))
+
+    def into(self, template: Callable) -> Query:
+        return Query(base.into(self.json_data, template))
+
+    def __iter__(self) -> Iterator[base.JSON]:
+        for item in self.json_data:
+            yield item
+
+
+def select(json_data: base.JSON, **pointers: str) -> Query:
+    """
+
+    :example:
+        >>> payload = {
+        ...     "sales": [{"id": 1, "number": 34}, {"id": 2, "number": 12}, {"id": 3, "number": -4}],
+        ...     "prices": [{"id": 1, "cost": 0.98}, {"id": 2, "cost": 0.34}, {"id": 3, "cost": 1.02}],
+        ... }
+        >>> s = select(
+        ...     payload,
+        ...     sales_id="$.sales[*].id",
+        ...     number="$.sales[*].number",
+        ...     price_id="$.prices[*].id",
+        ...     cost="$.prices[*].cost",
+        ... )
+        >>> w = s.where(lambda sales_id, price_id: sales_id == price_id, lambda number: number > 0)
+        >>> i = w.into(lambda number, cost: number * cost)
+        >>> sum(i)
+        37.4
+    """
+    return Query(base.select(json_data, **pointers))
