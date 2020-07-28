@@ -1,6 +1,7 @@
 Welcome to gymnasdicts's documentation!
 ======================================
 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -12,6 +13,7 @@ Welcome to gymnasdicts's documentation!
    contributing
    authors
    history
+
 
 Indices and tables
 ==================
