@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 """Top-level package for gymnasdicts."""
 
 __author__ = """George Burton"""
-__email__ = 'george.burton@unai.com'
-__version__ = '0.1.0'
+__email__ = "george.burton@unai.com"
+__version__ = "0.1.0"
 
 
 from typing import Callable, Iterator
@@ -31,8 +32,16 @@ def select(json_data: base.JSON, **pointers: str) -> Query:
 
     :example:
         >>> payload = {
-        ...     "sales": [{"id": 1, "number": 34}, {"id": 2, "number": 12}, {"id": 3, "number": -4}],
-        ...     "prices": [{"id": 1, "cost": 0.98}, {"id": 2, "cost": 0.34}, {"id": 3, "cost": 1.02}],
+        ...     "sales": [
+        ...         {"id": 1, "number": 34},
+        ...         {"id": 2, "number": 12},
+        ...         {"id": 3, "number": -4}
+        ...     ],
+        ...     "prices": [
+        ...         {"id": 1, "cost": 0.98},
+        ...         {"id": 2, "cost": 0.34},
+        ...         {"id": 3, "cost": 1.02}
+        ...     ],
         ... }
         >>> s = select(
         ...     payload,
@@ -41,7 +50,9 @@ def select(json_data: base.JSON, **pointers: str) -> Query:
         ...     price_id="$.prices[*].id",
         ...     cost="$.prices[*].cost",
         ... )
-        >>> w = s.where(lambda sales_id, price_id: sales_id == price_id, lambda number: number > 0)
+        >>> w = s.where(
+        ...     lambda sales_id, price_id: sales_id == price_id, lambda number: number > 0
+        ... )
         >>> i = w.into(lambda number, cost: number * cost)
         >>> sum(i)
         37.4
