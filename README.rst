@@ -43,6 +43,7 @@ select
 It identifies and names the nested-keys in the json-objects to be used.
 The first argument is the json object to be queried.
 The remaining arguments are in the keyword-arg form where:
+
 * the values are a restricted jsonpath, where no filtering is allowed.
 * the keys are user-defined variables to which the values above are assigned.
 
