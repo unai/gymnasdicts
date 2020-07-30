@@ -188,13 +188,13 @@ def test_where_fail(function):
     ],
 )
 def test_select(payload, conditions, expected):
-    assert list(select(payload, **conditions)) == expected
+    assert list(select([payload], **conditions)) == expected
 
 
 @pytest.mark.parametrize(
     "payload, pointers, message",
     [
-        (2, {}, "unexpected payload type"),
+        ([2], {}, "unexpected payload type"),
         ([{}], {"a": "$.x"}, "'x' not found in '{}'"),
         ([{}], {"a": "x"}, "a must start with $"),
     ],

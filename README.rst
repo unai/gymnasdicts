@@ -33,14 +33,19 @@ Features
 `gymnasdicts` is a lightweight library for querying json compatible nested-dictionaries in Python.
 
 
-This package exposes three functions that can be chained together so that they
+This package exposes on class with three functions that can be chained together so that they
 follow a sql-like convention.
+
+Query
+======
+`Query` is the entry point for the library, it is the data-type that
+is acted on and returned by all other methods.
+
 
 select
 ======
 
-`select` is the entry point for the library.
-It identifies and names the nested-keys in the json-objects to be used.
+`select` identifies and names the nested-keys in the json-objects to be used.
 The first argument is the json object to be queried.
 The remaining arguments are in the keyword-arg form where:
 

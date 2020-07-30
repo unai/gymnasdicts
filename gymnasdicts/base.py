@@ -8,7 +8,7 @@ from gymnasdicts.utils import group_by, merge, strip_index
 JSON = Dict[str, Any]
 
 
-def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
+def select(payloads: Iterator[JSON], **pointers: str) -> Iterator[JSON]:
     """
     :example:
         >>> payload = {
@@ -20,7 +20,7 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
         ... }
         >>> list(
         ...     select(
-        ...         payload,
+        ...         [payload],
         ...         a="$.A[:].D",
         ...         b="$.A[:].E",
         ...         c="$.B[:].F",
@@ -62,13 +62,14 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
         else:
             raise ValueError("unexpected payload type")
 
-    _select(
-        payload,
-        {
-            key: tuple(map(strip_index, value.split(".")[1:]))
-            for key, value in pointers.items()
-        },
-    )
+    for payload in payloads:
+        _select(
+            payload,
+            {
+                key: tuple(map(strip_index, value.split(".")[1:]))
+                for key, value in pointers.items()
+            },
+        )
 
     return map(merge, product(*group_by(res, tuple)))
 
