@@ -1,19 +1,19 @@
-pip==19.2.3
-bump2version==0.5.11
-wheel==0.33.6
-watchdog==0.9.0
+pip==10.2
+bump2version==1.0.0
+wheel==0.34.2
+watchdog==0.10.3
 flake8==3.8.3
-tox==3.14.0
-coverage==4.5.4
-Sphinx==1.8.5
-twine==1.14.0
+tox==3.18.1
+coverage==5.2.1
+Sphinx==3.1.2
+twine==3.2.0
 
-pytest==5.4.3
-pytest-runner==5.1
+pytest==6.0.1
+pytest-runner==5.2
 
 pytest-cov==2.10.0
 mypy==0.782
 pre-commit==2.6.0
 pipenv==2020.6.2
-isort==5.2.0
+isort==5.2.2
 black==19.10b0
