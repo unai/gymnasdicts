@@ -7,27 +7,12 @@ __email__ = "george.burton@unai.com"
 __version__ = "0.1.0"
 
 
-from typing import Callable, Iterator
+from typing import Callable, Iterator, Union
 
 from gymnasdicts import base
 
 
 class Query:
-    def __init__(self, json_data: Iterator[base.JSON]) -> None:
-        self.json_data = json_data
-
-    def where(self, *conditions: Callable) -> Query:
-        return Query(base.where(self.json_data, *conditions))
-
-    def into(self, template: Callable) -> Query:
-        return Query(base.into(self.json_data, template))
-
-    def __iter__(self) -> Iterator[base.JSON]:
-        for item in self.json_data:
-            yield item
-
-
-def select(json_data: base.JSON, **pointers: str) -> Query:
     """
 
     :example:
@@ -43,8 +28,8 @@ def select(json_data: base.JSON, **pointers: str) -> Query:
         ...         {"id": 3, "cost": 1.02}
         ...     ],
         ... }
-        >>> s = select(
-        ...     payload,
+        >>> q = Query(payload)
+        >>> s = q.select(
         ...     sales_id="$.sales[*].id",
         ...     number="$.sales[*].number",
         ...     price_id="$.prices[*].id",
@@ -57,4 +42,22 @@ def select(json_data: base.JSON, **pointers: str) -> Query:
         >>> sum(i)
         37.4
     """
-    return Query(base.select(json_data, **pointers))
+
+    def __init__(self, json_data: Union[base.JSON, Iterator[base.JSON]]) -> None:
+        if isinstance(json_data, Iterator):
+            self.json_data = json_data
+        else:
+            self.json_data = iter([json_data])
+
+    def select(self, **pointers: str) -> Query:
+        return Query(base.select(self.json_data, **pointers))
+
+    def where(self, *conditions: Callable) -> Query:
+        return Query(base.where(self.json_data, *conditions))
+
+    def into(self, template: Callable) -> Query:
+        return Query(base.into(self.json_data, template))
+
+    def __iter__(self) -> Iterator[base.JSON]:
+        for item in self.json_data:
+            yield item

@@ -1,4 +1,4 @@
-from gymnasdicts import select
+from gymnasdicts import Query
 
 
 def test_chain():
@@ -19,8 +19,8 @@ def test_chain():
         ],
     }
 
-    s = select(
-        payload,
+    q = Query(payload)
+    s = q.select(
         sales_id="$.sales[*].id",
         number="$.sales[*].number",
         price_id="$.prices[*].id",
