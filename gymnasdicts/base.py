@@ -3,7 +3,7 @@ import inspect
 from itertools import product
 from typing import Any, Callable, Dict, Iterator, Tuple
 
-from gymnasdicts.utils import group_by, merge, strip_index
+from gymnasdicts.utils import group_by, merge, parse_pointer
 
 JSON = Dict[str, Any]
 
@@ -29,10 +29,6 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
         ... )
         [{'a': True, 'b': '2021-01-04', 'c': 1, 'd': 0.22}, {'a': True, 'b': '2021-01-04', 'c': 2, 'd': 0.43}, {'a': False, 'b': '1982-12-2', 'c': 1, 'd': 0.22}, {'a': False, 'b': '1982-12-2', 'c': 2, 'd': 0.43}]
     """
-
-    for pointer_key, pointer in pointers.items():
-        if not pointer.startswith("$"):
-            raise ValueError(f"{pointer_key} must start with $")
 
     res = []
 
@@ -65,8 +61,8 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
     _select(
         payload,
         {
-            key: tuple(map(strip_index, value.split(".")[1:]))
-            for key, value in pointers.items()
+            pointer_key: parse_pointer(pointer)
+            for pointer_key, pointer in pointers.items()
         },
     )
 

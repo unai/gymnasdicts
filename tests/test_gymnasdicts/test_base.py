@@ -196,7 +196,6 @@ def test_select(payload, conditions, expected):
     [
         (2, {}, "unexpected payload type"),
         ([{}], {"a": "$.x"}, "'x' not found in '{}'"),
-        ([{}], {"a": "x"}, "a must start with $"),
     ],
 )
 def test_select_fail(payload, pointers, message):
