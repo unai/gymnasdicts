@@ -105,6 +105,29 @@ example
     assert sum(i) == 37.4
 
 
+FAQ
+---
+
+What about joins?
+===================
+`select` is effectively a cartesian join on all supplied jsonpaths,
+i.e.
+
+.. code-block:: python
+
+    Query({...}).select(x="$Tbl[:].a", y="$Tbl[:].b", z="$Tbl[:].c")
+
+is equivalent to
+
+.. code-block:: sql
+
+    select A.a as x, B.b as y, C.c as z from Tbl as A, Tbl as B, Tbl as C
+
+so that `where` can be used in to do the job of `on`.
+
+This is hideous, what about memory?!
+=======================================
+Generators take care of this.
 
 
 Credits
