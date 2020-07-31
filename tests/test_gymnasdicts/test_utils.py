@@ -1,6 +1,6 @@
 import pytest  # type: ignore
 
-from gymnasdicts.utils import group_by, strip_index
+from gymnasdicts.utils import group_by, parse_pointer
 
 
 @pytest.mark.parametrize(
@@ -27,6 +27,15 @@ def test_group_by(iterable, key, expected):
     assert list(group_by(iterable, key)) == expected
 
 
-@pytest.mark.parametrize("text, expected", [("a[:]", "a"), ("a[*]", "a"), ("a", "a")])
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("$.a[:]", ("a",)),
+        ("$.a[*].b", ("a", "b")),
+        ("$['a'][*]", ("a",)),
+        ("$['a'][*]['b']", ("a", "b")),
+        ("$.a", ("a",)),
+    ],
+)
 def test_strip_index(text, expected):
-    strip_index(text) == expected
+    assert parse_pointer(text) == expected

@@ -1,5 +1,7 @@
 from itertools import groupby
-from typing import Callable, Dict, Iterator, List, Optional
+from typing import Callable, Dict, Iterator, List, Optional, Tuple
+
+from jsonpath_ng import Fields, Root, parse
 
 
 def group_by(iterable: List, key: Optional[Callable] = None) -> Iterator[List]:
@@ -33,14 +35,23 @@ def merge(dictionaries: Iterator[Dict]) -> Dict:
     return out
 
 
-def strip_index(text: str) -> str:
-    """strips out index tokens from jsonpath
-    :example:
-        >>> strip_index("abc[:]")
-        'abc'
+def parse_pointer(pointer: str) -> Tuple[str, ...]:
+    """uses jsonpath-ng lib to parse various path formats
+    into a standard form returning only the relevant fields
     """
-    if text.endswith("[*]"):
-        return text[:-3]
-    if text.endswith("[:]"):
-        return text[:-3]
-    return text
+    try:
+        _pointer = parse(pointer)
+    except Exception as exception:  # not my fault,
+        # it really is implemented as a raw Exception in this package
+        raise ValueError(f"{exception}")
+
+    res = []
+
+    def _parse(element):
+        if not isinstance(element, Root):
+            _parse(element.left)
+            if isinstance(element.right, Fields):
+                res.append(element.right.fields[0])
+
+    _parse(_pointer)
+    return tuple(res)
