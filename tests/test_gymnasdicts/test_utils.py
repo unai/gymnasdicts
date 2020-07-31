@@ -37,5 +37,5 @@ def test_group_by(iterable, key, expected):
         ("$.a", ("a",)),
     ],
 )
-def test_strip_index(text, expected):
+def test_parse_pointer(text, expected):
     assert parse_pointer(text) == expected
