@@ -30,10 +30,6 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
         [{'a': True, 'b': '2021-01-04', 'c': 1, 'd': 0.22}, {'a': True, 'b': '2021-01-04', 'c': 2, 'd': 0.43}, {'a': False, 'b': '1982-12-2', 'c': 1, 'd': 0.22}, {'a': False, 'b': '1982-12-2', 'c': 2, 'd': 0.43}]
     """
 
-    parsed_pointers = {
-        pointer_key: parse_pointer(pointer) for pointer_key, pointer in pointers.items()
-    }
-
     res = []
 
     def _select(
@@ -62,7 +58,13 @@ def select(payload: JSON, **pointers: str) -> Iterator[JSON]:
         else:
             raise ValueError("unexpected payload type")
 
-    _select(payload, parsed_pointers)
+    _select(
+        payload,
+        {
+            pointer_key: parse_pointer(pointer)
+            for pointer_key, pointer in pointers.items()
+        },
+    )
 
     return map(merge, product(*group_by(res, tuple)))
 
