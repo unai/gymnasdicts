@@ -54,3 +54,11 @@ repos:
         entry: pipenv run make html -C docs
         types: [python]
         pass_filenames: false
+
+      - id: safety
+        name: safety
+        stages: [commit]
+        language: system
+        entry: pipenv run safety check
+        types: [python]
+        pass_filenames: false
