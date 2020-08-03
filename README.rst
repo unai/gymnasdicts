@@ -86,8 +86,8 @@ example
         ]
     }
 
-    s = select(
-        payload,
+    q = Query(payload)
+    a = q.select(
         sales_id = "$.sales[:].id",
         number = "$.sales[:].number",
         price_id = "$.prices[:].id",
@@ -123,7 +123,7 @@ is equivalent to
 
     select A.a as x, B.b as y, C.c as z from Tbl as A, Tbl as B, Tbl as C
 
-so that `where` can be used in to do the job of `on`.
+so that `where` can be used to do the job of `on`.
 
 This is hideous, what about memory?!
 =======================================
