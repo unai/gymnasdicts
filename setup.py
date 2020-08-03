@@ -10,7 +10,9 @@ with open("README.rst") as readme_file:
 with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = []
+requirements = [
+    'jsonpath-ng>=1.5',
+]
 
 setup_requirements = [
     "pytest-runner",
@@ -45,6 +47,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/unai/gymnasdicts",
-    version="0.1.1",
+    version="0.1.2",
     zip_safe=False,
 )
