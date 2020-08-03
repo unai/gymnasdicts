@@ -9,11 +9,10 @@ Development Lead
 
 Contributors
 ------------
+* `George Burton`_
+* `Matt Oates`_
+* `Laura Domicevica`_
 
-_`Matt Oates`
-
-.. MattOates_:  https://github.com/MattOates
-
-_`Laura Domicevica`
-
-.. ldomic_:  https://github.com/ldomic
+.. _`George Burton`:  https://github.com/gecBurton
+.. _`Laura Domicevica`:  https://github.com/ldomic
+.. _`Matt Oates`:  https://github.com/MattOates
