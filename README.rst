@@ -135,5 +135,8 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+Thanks to kclaurelie_ for useful discussion re: the relationship between select/where and keys/values.
+
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _kclaurelie: https://github.com/kclaurelie
