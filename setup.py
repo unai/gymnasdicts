@@ -11,7 +11,7 @@ with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
 requirements = [
-    'jsonpath-ng==1.5.1',
+    'jsonpath-ng>=1.5',
 ]
 
 setup_requirements = [
