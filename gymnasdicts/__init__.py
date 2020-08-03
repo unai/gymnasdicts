@@ -4,7 +4,7 @@ from __future__ import annotations
 
 __author__ = """George Burton"""
 __email__ = "george.burton@unai.com"
-__version__ = "__version__ = '0.1.1'"
+__version__ = "__version__ = '__version__ = '0.1.1''"
 
 
 from typing import Callable, Iterator, Union
