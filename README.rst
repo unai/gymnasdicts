@@ -67,7 +67,7 @@ example
 
 .. code-block:: python
 
-    from gymnasdicts import select
+    from gymnasdicts import Query
 
     payload = {
         "sales": [
