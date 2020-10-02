@@ -1,5 +1,6 @@
+import collections
 from itertools import groupby
-from typing import Callable, Dict, Iterator, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
 from jsonpath_ng import Fields, Root, parse
 
@@ -16,7 +17,7 @@ def group_by(iterable: List, key: Optional[Callable] = None) -> Iterator[List]:
         yield list(values)
 
 
-def merge(dictionaries: Iterator[Dict]) -> Dict:
+def merge(dictionaries: Sequence[Dict]) -> Dict:
     """merge and update many dictionaries
     :example:
         >>> merge(
@@ -29,10 +30,7 @@ def merge(dictionaries: Iterator[Dict]) -> Dict:
         {'a': 1, 'b': 3, 'c': 4, 'd': 5}
 
     """
-    out = dict()
-    for item in dictionaries:
-        out.update(item)
-    return out
+    return dict(collections.ChainMap(*reversed(dictionaries)))
 
 
 def parse_pointer(pointer: str) -> Tuple[str, ...]:
