@@ -1,8 +1,8 @@
 import collections
 from itertools import groupby
-from typing import Callable, Dict, Iterator, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple
 
-from jsonpath_ng import Fields, Root, parse
+from jsonpath_ng import Child, Fields, parse
 
 
 def group_by(iterable: List, key: Optional[Callable] = None) -> Iterator[List]:
@@ -33,23 +33,28 @@ def merge(dictionaries: Sequence[Dict]) -> Dict:
     return dict(collections.ChainMap(*reversed(dictionaries)))
 
 
-def parse_pointer(pointer: str) -> Tuple[str, ...]:
+def _pointer_to_tuple(pointer: Any) -> Tuple[str, ...]:
+    """recursively flattens jsonpath-ng tree into a tuple of str
+    :example:
+        >>> ptr = Child(Fields("A"), Child(Fields("B"), Fields("C")))
+        >>> _pointer_to_tuple(ptr)
+        ('A', 'B', 'C')
+    """
+    if isinstance(pointer, Child):
+        return _pointer_to_tuple(pointer.left) + _pointer_to_tuple(pointer.right)
+    if isinstance(pointer, Fields):
+        return pointer.fields
+    return tuple()
+
+
+def parse_pointer(pointer_str: str) -> Tuple[str, ...]:
     """uses jsonpath-ng lib to parse various path formats
     into a standard form returning only the relevant fields
     """
     try:
-        _pointer = parse(pointer)
+        pointer = parse(pointer_str)
     except Exception as exception:  # not my fault,
         # it really is implemented as a raw Exception in this package
         raise ValueError(f"{exception}")
 
-    res = []
-
-    def _parse(element):
-        if not isinstance(element, Root):
-            _parse(element.left)
-            if isinstance(element.right, Fields):
-                res.append(element.right.fields[0])
-
-    _parse(_pointer)
-    return tuple(res)
+    return _pointer_to_tuple(pointer)

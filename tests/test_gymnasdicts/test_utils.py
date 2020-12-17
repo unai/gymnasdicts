@@ -1,6 +1,7 @@
 import pytest  # type: ignore
+from jsonpath_ng import Child, Fields, Root
 
-from gymnasdicts.utils import group_by, parse_pointer
+from gymnasdicts.utils import _pointer_to_tuple, group_by, parse_pointer
 
 
 @pytest.mark.parametrize(
@@ -25,6 +26,18 @@ from gymnasdicts.utils import group_by, parse_pointer
 )
 def test_group_by(iterable, key, expected):
     assert list(group_by(iterable, key)) == expected
+
+
+@pytest.mark.parametrize(
+    "pointer, expected",
+    [
+        (Child(Fields("a"), Fields("b")), ("a", "b")),
+        (Child(Root(), Fields("a")), ("a",)),
+        (Child(Fields("a"), Child(Fields("b"), Fields("c"))), ("a", "b", "c")),
+    ],
+)
+def test__pointer_to_tuple(pointer, expected):
+    assert _pointer_to_tuple(pointer) == expected
 
 
 @pytest.mark.parametrize(
