@@ -61,3 +61,43 @@ def parse_pointer(pointer_str: str, flatten=True) -> Tuple:
     if not flatten:
         return nested_tuples
     return sum(nested_tuples, tuple())
+
+
+def compress_two_objects(left, right, *path):
+    """
+    :example:
+        >>> a = {"a": {"x": [3], "y": 5, "z": 9}}
+        >>> b = {"a": {"x": [4], "y": 5, "z": 10}}
+        >>> compress_two_objects(a, b, ["a"], ["x", "z"])
+        {'a': {'x': [3, 4], 'y': 5, 'z': 19}}
+
+    """
+    if not path:
+        assert left == right  # check objects are the same
+        return left  # return one of them
+
+    assert type(left) == type(right)
+
+    if isinstance(left, list):
+        assert len(left) == len(right)
+        return [
+            compress_two_objects(left_item, right_item, *path)
+            for left_item, right_item in zip(left, right)
+        ]
+
+    if isinstance(left, dict):
+        assert left.keys() == right.keys()
+
+        head, *tail = path
+        ret = {}
+        for key in left:
+            if key not in head:  # check equal and move on
+                ret[key] = compress_two_objects(left[key], right[key])
+            elif not tail:  # end of the line, sum these objects
+                ret[key] = left[key] + right[key]
+            else:  # ..continue
+                ret[key] = compress_two_objects(left[key], right[key], *tail)
+
+        return ret
+
+    raise ValueError("cant use jsonpath on a primitive!")

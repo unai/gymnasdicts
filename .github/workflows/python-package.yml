@@ -39,7 +39,7 @@ jobs:
                   flake8 gymnasdicts tests
             - name: Test with pytest
               run: |
-                  pytest --cov=gymnasdicts
+                  pytest --cov=gymnasdicts --cov-report term-missing
             - name: Test with doctest
               run: |
                   pytest --doctest-modules gymnasdicts
