@@ -107,6 +107,6 @@ def test_compress_two_objects(left, right, pointer, expected):
 
 
 def test_compress_two_objects_fails():
-    with pytest.raises(ValueError) as value_error:
+    with pytest.raises(AssertionError) as value_error:
         aggregate_two_items(1, 1, "$")
     assert str(value_error.value) == "cant use jsonpath on a primitive!"

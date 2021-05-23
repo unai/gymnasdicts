@@ -63,7 +63,7 @@ def parse_pointer(pointer_str: str, flatten=True) -> Tuple:
     return sum(nested_tuples, tuple())
 
 
-def aggregate_two_items(left, right, path):
+def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
     """
     :example:
         >>> a = {"a": {"x": [3], "y": 5, "z": 9}}
@@ -72,13 +72,10 @@ def aggregate_two_items(left, right, path):
         {'a': {'x': [3, 4], 'y': 5, 'z': 19}}
 
     """
-    if not path:
-        assert left == right  # check objects are the same
-        return left  # return one of them
 
     assert type(left) == type(right)
 
-    if isinstance(left, list):
+    if isinstance(left, list):  # apply to each item
         assert len(left) == len(right)
         return [
             aggregate_two_items(left_item, right_item, path)
@@ -91,7 +88,7 @@ def aggregate_two_items(left, right, path):
         ret = {}
         for key in left:
             if key not in path:  # check equal and move on
-                ret[key] = aggregate_two_items(left[key], right[key], None)
+                ret[key] = aggregate_two_items(left[key], right[key], {})
             elif isinstance(path, list):  # end of the line, sum these objects
                 ret[key] = left[key] + right[key]
             else:  # ..continue
@@ -99,4 +96,6 @@ def aggregate_two_items(left, right, path):
 
         return ret
 
-    raise ValueError("cant use jsonpath on a primitive!")
+    assert not path, "cant use jsonpath on a primitive!"
+    assert left == right  # check objects are the same
+    return left  # return one of them
