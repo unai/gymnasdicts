@@ -31,9 +31,9 @@ def test_group_by(iterable, key, expected):
 @pytest.mark.parametrize(
     "pointer, expected",
     [
-        (Child(Fields("a"), Fields("b")), ("a", "b")),
-        (Child(Root(), Fields("a")), ("a",)),
-        (Child(Fields("a"), Child(Fields("b"), Fields("c"))), ("a", "b", "c")),
+        (Child(Fields("a"), Fields("b")), (("a",), ("b",))),
+        (Child(Root(), Fields("a")), (("a",),)),
+        (Child(Fields("a"), Child(Fields("b"), Fields("c"))), (("a",), ("b",), ("c",))),
     ],
 )
 def test__pointer_to_tuple(pointer, expected):
@@ -41,17 +41,19 @@ def test__pointer_to_tuple(pointer, expected):
 
 
 @pytest.mark.parametrize(
-    "text, expected",
+    "text, nested, flattened",
     [
-        ("$.a[:]", ("a",)),
-        ("$.a[*].b", ("a", "b")),
-        ("$['a'][*]", ("a",)),
-        ("$['a'][*]['b']", ("a", "b")),
-        ("$.a", ("a",)),
+        ("$.a[:]", (("a",),), ("a",)),
+        ("$.a[*].b", (("a",), ("b",)), ("a", "b")),
+        ("$['a'][*]", (("a",),), ("a",)),
+        ("$['a'][*]['b']", (("a",), ("b",)), ("a", "b")),
+        ("$['a'][*][b, c]", (("a",), ("b", "c")), ("a", "b", "c")),
+        ("$.a", (("a",),), ("a",)),
     ],
 )
-def test_parse_pointer(text, expected):
-    assert parse_pointer(text) == expected
+def test_parse_pointer(text, nested, flattened):
+    assert parse_pointer(text, False) == nested
+    assert parse_pointer(text, True) == flattened
 
 
 def test_parse_pointer_fail():
