@@ -63,12 +63,12 @@ def parse_pointer(pointer_str: str, flatten=True) -> Tuple:
     return sum(nested_tuples, tuple())
 
 
-def compress_two_objects(left, right, *path):
+def aggregate_two_items(left, right, path):
     """
     :example:
         >>> a = {"a": {"x": [3], "y": 5, "z": 9}}
         >>> b = {"a": {"x": [4], "y": 5, "z": 10}}
-        >>> compress_two_objects(a, b, ["a"], ["x", "z"])
+        >>> aggregate_two_items(a, b, {"a": ["x", "z"]})
         {'a': {'x': [3, 4], 'y': 5, 'z': 19}}
 
     """
@@ -81,22 +81,21 @@ def compress_two_objects(left, right, *path):
     if isinstance(left, list):
         assert len(left) == len(right)
         return [
-            compress_two_objects(left_item, right_item, *path)
+            aggregate_two_items(left_item, right_item, path)
             for left_item, right_item in zip(left, right)
         ]
 
     if isinstance(left, dict):
         assert left.keys() == right.keys()
 
-        head, *tail = path
         ret = {}
         for key in left:
-            if key not in head:  # check equal and move on
-                ret[key] = compress_two_objects(left[key], right[key])
-            elif not tail:  # end of the line, sum these objects
+            if key not in path:  # check equal and move on
+                ret[key] = aggregate_two_items(left[key], right[key], None)
+            elif isinstance(path, list):  # end of the line, sum these objects
                 ret[key] = left[key] + right[key]
             else:  # ..continue
-                ret[key] = compress_two_objects(left[key], right[key], *tail)
+                ret[key] = aggregate_two_items(left[key], right[key], path[key])
 
         return ret
 
