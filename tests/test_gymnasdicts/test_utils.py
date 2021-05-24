@@ -106,7 +106,14 @@ def test_compress_two_objects(left, right, pointer, expected):
     assert aggregate_two_items(left, right, pointer) == expected
 
 
-def test_compress_two_objects_fails():
+@pytest.mark.parametrize(
+    "left, right, path, message",
+    [
+        (1, 1, "$", "cant use jsonpath on a primitive!"),
+        ({"a": 1}, {"a": 1}, ["a", "b"], "path contains fields not in payload!"),
+    ],
+)
+def test_compress_two_objects_fails(left, right, path, message):
     with pytest.raises(AssertionError) as value_error:
-        aggregate_two_items(1, 1, "$")
-    assert str(value_error.value) == "cant use jsonpath on a primitive!"
+        aggregate_two_items(left, right, path)
+    assert str(value_error.value) == message

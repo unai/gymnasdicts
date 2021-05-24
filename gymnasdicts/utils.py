@@ -84,6 +84,7 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
 
     if isinstance(left, dict):
         assert left.keys() == right.keys()
+        assert set(path).issubset(left), "path contains fields not in payload!"
 
         ret = {}
         for key in left:
