@@ -3,7 +3,7 @@ import inspect
 from itertools import product
 from typing import Any, Callable, Dict, Iterator, Tuple
 
-from gymnasdicts.utils import group_by, merge, parse_pointer
+from gymnasdicts.utils import aggregate_two_items, group_by, merge, parse_pointer
 
 JSON = Dict[str, Any]
 
@@ -130,3 +130,32 @@ def into(payload: Iterator[JSON], template: Callable) -> Iterator[JSON]:
             raise ValueError(
                 "argument-names don't match your arg-names in your payload"
             )
+
+
+def aggregate(payload: Iterator[JSON], path: str) -> Iterator[JSON]:
+    """
+    :example:
+        >>> _payload = [
+        ...     {"month": "march", "rainfall (mm)": 231},
+        ...     {"month": "march", "rainfall (mm)": 326},
+        ...     {"month": "april", "rainfall (mm)": 129},
+        ...     {"month": "april", "rainfall (mm)": 443},
+        ...     {"month": "may", "rainfall (mm)": 261},
+        ... ]
+        >>> _path = "$.['rainfall (mm)']"
+        >>> list(aggregate(_payload, _path))
+        [{'month': 'march', 'rainfall (mm)': 557}, {'month': 'april', 'rainfall (mm)': 572}, {'month': 'may', 'rainfall (mm)': 261}]
+
+    """
+    sequence = iter(payload)
+    pointer = parse_pointer(path, False)
+
+    group = next(sequence)
+
+    for element in sequence:
+        try:
+            group = aggregate_two_items(group, element, *pointer)
+        except AssertionError:
+            yield dict(group)
+            group = element
+    yield group

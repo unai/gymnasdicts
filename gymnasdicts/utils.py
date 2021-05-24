@@ -89,7 +89,7 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
         for key in left:
             if key not in path:  # check equal and move on
                 ret[key] = aggregate_two_items(left[key], right[key], {})
-            elif isinstance(path, list):  # end of the line, sum these objects
+            elif isinstance(path, (list, tuple)):  # end of the line, sum these objects
                 ret[key] = left[key] + right[key]
             else:  # ..continue
                 ret[key] = aggregate_two_items(left[key], right[key], path[key])

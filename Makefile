@@ -48,10 +48,16 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
+	isort gymnasdicts tests
+	black gymnasdicts tests
 	flake8 gymnasdicts tests
+	mypy gymnasdicts tests
 
 test: ## run tests quickly with the default Python
 	pytest
+
+doctest:
+	pytest --doctest-modules gymnasdicts
 
 test-all: ## run tests on every Python version with tox
 	tox

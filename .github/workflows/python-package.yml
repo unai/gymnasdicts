@@ -28,21 +28,9 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install -r requirements_dev.txt
 
-            - name: Sort imports with isort
-              run: |
-                  isort gymnasdicts tests
-            - name: Format code with black
-              run: |
-                  black gymnasdicts tests
             - name: Lint with flake8
               run: |
-                  flake8 gymnasdicts tests
+                  make lint
             - name: Test with pytest
               run: |
-                  pytest --cov=gymnasdicts --cov-report term-missing
-            - name: Test with doctest
-              run: |
-                  pytest --doctest-modules gymnasdicts
-            - name: Static typechecking with mypy
-              run: |
-                  mypy gymnasdicts tests
+                  make test doctest

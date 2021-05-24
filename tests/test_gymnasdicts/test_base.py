@@ -1,6 +1,6 @@
 import pytest  # type: ignore
 
-from gymnasdicts.base import into, select, where
+from gymnasdicts.base import aggregate, into, select, where
 
 
 @pytest.mark.parametrize(
@@ -202,3 +202,27 @@ def test_select_fail(payload, pointers, message):
     with pytest.raises(ValueError) as value_error:
         select(payload, **pointers)
     assert str(value_error.value) == message
+
+
+@pytest.mark.parametrize(
+    "payload, path, expected",
+    [
+        (
+            [
+                {"month": "march", "rainfall (mm)": 231},
+                {"month": "march", "rainfall (mm)": 326},
+                {"month": "april", "rainfall (mm)": 129},
+                {"month": "april", "rainfall (mm)": 443},
+                {"month": "may", "rainfall (mm)": 261},
+            ],
+            "$.['rainfall (mm)']",
+            [
+                {"month": "march", "rainfall (mm)": 231 + 326},
+                {"month": "april", "rainfall (mm)": 129 + 443},
+                {"month": "may", "rainfall (mm)": 261},
+            ],
+        )
+    ],
+)
+def test_aggregate(payload, path, expected):
+    assert list(aggregate(payload, path)) == expected
