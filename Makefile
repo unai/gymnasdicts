@@ -34,6 +34,7 @@ clean-build: ## remove build artifacts
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+	pip freeze | xargs pip uninstall -y
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -55,6 +56,10 @@ lint: ## check style with flake8
 
 test: ## run tests quickly with the default Python
 	pytest
+
+build:
+	python -m pip install --upgrade pip
+	pip install -r requirements_dev.txt
 
 doctest:
 	pytest --doctest-modules gymnasdicts
