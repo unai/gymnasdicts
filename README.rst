@@ -96,7 +96,7 @@ example
         denom_2 = "$.accounting[:].denomination",
         multiplier = "$.accounting[:].multiplier"
     )
-    w = s.where(
+    w = a.where(
         lambda sales_id, price_id: sales_id == price_id,
         lambda number: number > 0,
         lambda denom_1, denom_2 : denom_1 == denom_2
