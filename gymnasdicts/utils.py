@@ -33,21 +33,21 @@ def merge(dictionaries: Sequence[Dict]) -> Dict:
     return dict(collections.ChainMap(*reversed(dictionaries)))
 
 
-def _pointer_to_tuple(pointer: Any) -> Tuple[str, ...]:
-    """recursively flattens jsonpath-ng tree into a tuple of str
+def _pointer_to_tuple(pointer: Any) -> Tuple[Tuple[str, ...], ...]:
+    """recursively flattens jsonpath-ng tree into a tuple of tuple of str
     :example:
-        >>> ptr = Child(Fields("A"), Child(Fields("B"), Fields("C")))
+        >>> ptr = Child(Fields("A"), Child(Fields("B"), Fields("C", "D")))
         >>> _pointer_to_tuple(ptr)
-        ('A', 'B', 'C')
+        (('A',), ('B',), ('C', 'D'))
     """
     if isinstance(pointer, Child):
         return _pointer_to_tuple(pointer.left) + _pointer_to_tuple(pointer.right)
     if isinstance(pointer, Fields):
-        return pointer.fields
+        return (pointer.fields,)
     return tuple()
 
 
-def parse_pointer(pointer_str: str) -> Tuple[str, ...]:
+def parse_pointer(pointer_str: str, flatten=True) -> Tuple:
     """uses jsonpath-ng lib to parse various path formats
     into a standard form returning only the relevant fields
     """
@@ -57,4 +57,64 @@ def parse_pointer(pointer_str: str) -> Tuple[str, ...]:
         # it really is implemented as a raw Exception in this package
         raise ValueError(f"{exception}")
 
-    return _pointer_to_tuple(pointer)
+    nested_tuples = _pointer_to_tuple(pointer)
+    if not flatten:
+        return nested_tuples
+    return sum(nested_tuples, tuple())
+
+
+def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
+    """
+    :example:
+        >>> a = {"a": {"x": [3], "y": 5, "z": 9}}
+        >>> b = {"a": {"x": [4], "y": 5, "z": 10}}
+        >>> aggregate_two_items(a, b, {"a": ["x", "z"]})
+        {'a': {'x': [3, 4], 'y': 5, 'z': 19}}
+
+    """
+
+    assert type(left) == type(right)
+
+    if isinstance(left, list):  # apply to each item
+        assert len(left) == len(right)
+        return [
+            aggregate_two_items(left_item, right_item, path)
+            for left_item, right_item in zip(left, right)
+        ]
+
+    if isinstance(left, dict):
+        assert left.keys() == right.keys()
+        assert set(path).issubset(left), "path contains fields not in payload!"
+
+        ret = {}
+        for key in left:
+            if key not in path:  # check equal and move on
+                ret[key] = aggregate_two_items(left[key], right[key], {})
+            elif isinstance(path, (list, tuple)):  # end of the line, sum these objects
+                ret[key] = left[key] + right[key]
+            else:  # ..continue
+                ret[key] = aggregate_two_items(left[key], right[key], path[key])
+
+        return ret
+
+    assert not path, "cant use jsonpath on a primitive!"
+    assert left == right  # check objects are the same
+    return left  # return one of them
+
+
+def set_dict_leaf_to_list(dictionary, *keys: Tuple[str, ...]) -> None:
+    """
+    :example:
+        >>> d = {"a": {"b": {"c": None}}}
+        >>> set_dict_leaf_to_list(d, ["a"], ["b"], ["c"])
+        >>> d
+        {'a': {'b': {'c': [None]}}}
+    """
+    head, *tail = keys
+
+    if tail:
+        for item in head:
+            set_dict_leaf_to_list(dictionary[item], *tail)
+    else:
+        for item in head:
+            dictionary[item] = [dictionary[item]]

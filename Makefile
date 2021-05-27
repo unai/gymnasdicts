@@ -34,6 +34,7 @@ clean-build: ## remove build artifacts
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+	pip freeze | xargs pip uninstall -y
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -48,10 +49,20 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
+	isort gymnasdicts tests
+	black gymnasdicts tests
 	flake8 gymnasdicts tests
+	mypy gymnasdicts tests
 
 test: ## run tests quickly with the default Python
 	pytest
+
+build:
+	python -m pip install --upgrade pip
+	pip install -r requirements_dev.txt
+
+doctest:
+	pytest --doctest-modules gymnasdicts
 
 test-all: ## run tests on every Python version with tox
 	tox

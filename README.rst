@@ -33,7 +33,7 @@ Features
 `gymnasdicts` is a lightweight library for querying json compatible nested-dictionaries in Python.
 
 
-This package exposes one class with three functions that can be chained together so that they
+This package exposes one class with four functions that can be chained together so that they
 follow a sql-like convention.
 
 Query
@@ -62,6 +62,11 @@ into
 `into` defines the shape of the output. Its only argument is lambda function
 where the argument names correspond to the variables defined in `select`.
 
+aggregate
+====
+`aggregate` groups a sequence of payloads by some fields and sums the rest.
+The fields to be summed are defined by a single jsonpath argument.
+
 example
 =======
 
@@ -70,40 +75,55 @@ example
     from gymnasdicts import Query
 
     payload = {
-        "sales": [
-            {"id": 1, "number": 34, "date": "2020-01-04"},
-            {"id": 2, "number": 12, "date": "2020-02-05"},
-            {"id": 3, "number": -4, "date": "2020-03-06"},
+        "patients": [
+            {"id": 1, "name": "Bob", "dob": "1982-02-05"},
+            {"id": 2, "name": "Sue", "dob": "2020-02-05"},
+            {"id": 3, "name": "Sam", "dob": "2020-03-06"},
+            {"id": 4, "name": "Kim", "dob": "2020-03-06"},
         ],
-        "prices": [
-            {"id": 1, "cost": {"value": 0.98, "denomination": "pounds"}},
-            {"id": 2, "cost": {"value": 34, "denomination": "pence"}},
-            {"id": 3, "cost": {"value": 1.02, "denomination": "pounds"}},
+        "prescription": [
+            {"id": 1, "price": 3, "drug": "Paracetamol"},
+            {"id": 2, "price": 12, "drug": "Lisinopril"},
+            {"id": 3, "price": 8, "drug": "Metformin"},
         ],
-        "accounting": [
-            {"denomination": "pounds", "multiplier": 1, },
-            {"denomination": "pence", "multiplier": 0.01, }
-        ]
+        "encounters": [
+            {"id": 1, "patient_id": 1, "prescription_id": 1, "doctor": "Patel"},
+            {"id": 2, "patient_id": 3, "prescription_id": 2, "doctor": "Patel"},
+            {"id": 3, "patient_id": 3, "prescription_id": 1, "doctor": "Francis"},
+            {"id": 4, "patient_id": 4, "prescription_id": 3, "doctor": "Francis"},
+        ],
     }
 
     q = Query(payload)
-    a = q.select(
-        sales_id = "$.sales[:].id",
-        number = "$.sales[:].number",
-        price_id = "$.prices[:].id",
-        cost = "$.prices[:].cost[:].value",
-        denom_1 = "$.prices[:].cost[:].denomination",
-        denom_2 = "$.accounting[:].denomination",
-        multiplier = "$.accounting[:].multiplier"
+    s = q.select(
+        encounter_patient_id="$.encounters[*].patient_id",
+        encounter_prescription_id="$.encounters[*].prescription_id",
+        doctor="$.encounters[*].doctor",
+        prescription_id="$.prescription[*].id",
+        patient_id="$.patients[*].id",
+        patient_name="$.patients[*].name",
+        dob="$.patients[*].dob",
+        price="$.prescription[*].price",
     )
-    w = a.where(
-        lambda sales_id, price_id: sales_id == price_id,
-        lambda number: number > 0,
-        lambda denom_1, denom_2 : denom_1 == denom_2
+    w = s.where(
+        lambda encounter_prescription_id, prescription_id: encounter_prescription_id
+        == prescription_id,
+        lambda encounter_patient_id, patient_id: encounter_patient_id == patient_id,
+        lambda dob: dob > "2020-01-01",
     )
-    i = w.into(lambda number, cost, multiplier: number * cost * multiplier)
-    assert sum(i) == 37.4
-
+    i = w.into(
+        lambda price, doctor, patient_name: {
+            "doctor": doctor,
+            "patients": patient_name,
+            "cost": price,
+        }
+    )
+    a = i.aggregate("$.['cost', 'patients']")
+    expected = [
+        {"doctor": "Patel", "patients": ["Sam"], "cost": [12]},
+        {"doctor": "Francis", "patients": ["Sam", "Kim"], "cost": [3, 8]},
+    ]
+    assert list(a) == expected
 
 FAQ
 ---
