@@ -62,8 +62,8 @@ class Query:
     ... )
     >>> a = i.aggregate("$.['cost', 'patients']")
     >>> expected = [
-    ...     {'doctor': 'Patel', 'patients': ['Sam'], 'cost': [12]},
-    ...     {'doctor': 'Francis', 'patients': ['Sam', 'Kim'], 'cost': [3, 8]}
+    ...     {"doctor": "Patel", "patients": ["Sam"], "cost": [12]},
+    ...     {"doctor": "Francis", "patients": ["Sam", "Kim"], "cost": [3, 8]}
     ... ]
     >>> list(a) == expected
     True

@@ -141,5 +141,5 @@ def test_compress_two_objects_fails(left, right, path, message):
     ],
 )
 def test_set_dict_leaf_to_list(dictionary, keys, expected):
-    outcome = set_dict_leaf_to_list(dictionary, *keys)
-    assert outcome == expected
+    set_dict_leaf_to_list(dictionary, *keys)
+    assert dictionary == expected

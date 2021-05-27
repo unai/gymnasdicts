@@ -102,11 +102,12 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
     return left  # return one of them
 
 
-def set_dict_leaf_to_list(dictionary, *keys):
+def set_dict_leaf_to_list(dictionary, *keys: Tuple[str, ...]) -> None:
     """
     :example:
         >>> d = {"a": {"b": {"c": None}}}
-        >>> set_dict_leaf_to_list(d, "a", "b", "c")
+        >>> set_dict_leaf_to_list(d, ["a"], ["b"], ["c"])
+        >>> d
         {'a': {'b': {'c': [None]}}}
     """
     head, *tail = keys
@@ -117,5 +118,3 @@ def set_dict_leaf_to_list(dictionary, *keys):
     else:
         for item in head:
             dictionary[item] = [dictionary[item]]
-
-    return dictionary
