@@ -42,13 +42,13 @@ def test_chain():
     i = w.into(
         lambda price, doctor, patient_name: {
             "doctor": doctor,
-            "patients": [patient_name],
+            "patients": patient_name,
             "cost": price,
         }
     )
     a = i.aggregate("$.['cost', 'patients']")
     expected = [
-        {"doctor": "Patel", "patients": ["Sam"], "cost": 12},
-        {"doctor": "Francis", "patients": ["Sam", "Kim"], "cost": 11},
+        {"doctor": "Patel", "patients": ["Sam"], "cost": [12]},
+        {"doctor": "Francis", "patients": ["Sam", "Kim"], "cost": [3, 8]},
     ]
     assert list(a) == expected

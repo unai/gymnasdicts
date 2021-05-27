@@ -100,3 +100,22 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
     assert not path, "cant use jsonpath on a primitive!"
     assert left == right  # check objects are the same
     return left  # return one of them
+
+
+def set_dict_leaf_to_list(dictionary, *keys):
+    """
+    :example:
+        >>> d = {"a": {"b": {"c": None}}}
+        >>> set_dict_leaf_to_list(d, "a", "b", "c")
+        {'a': {'b': {'c': [None]}}}
+    """
+    head, *tail = keys
+
+    if tail:
+        for item in head:
+            set_dict_leaf_to_list(dictionary[item], *tail)
+    else:
+        for item in head:
+            dictionary[item] = [dictionary[item]]
+
+    return dictionary

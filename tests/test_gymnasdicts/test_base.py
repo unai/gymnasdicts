@@ -217,9 +217,9 @@ def test_select_fail(payload, pointers, message):
             ],
             "$.['rainfall (mm)']",
             [
-                {"month": "march", "rainfall (mm)": 231 + 326},
-                {"month": "april", "rainfall (mm)": 129 + 443},
-                {"month": "may", "rainfall (mm)": 261},
+                {"month": "march", "rainfall (mm)": [231, 326]},
+                {"month": "april", "rainfall (mm)": [129, 443]},
+                {"month": "may", "rainfall (mm)": [261]},
             ],
         )
     ],

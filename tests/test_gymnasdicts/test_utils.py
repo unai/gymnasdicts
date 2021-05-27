@@ -6,6 +6,7 @@ from gymnasdicts.utils import (
     aggregate_two_items,
     group_by,
     parse_pointer,
+    set_dict_leaf_to_list,
 )
 
 
@@ -117,3 +118,28 @@ def test_compress_two_objects_fails(left, right, path, message):
     with pytest.raises(AssertionError) as value_error:
         aggregate_two_items(left, right, path)
     assert str(value_error.value) == message
+
+
+@pytest.mark.parametrize(
+    "dictionary, keys, expected",
+    [
+        (
+            {"a": {"b": {"c": None, "d": 2}}},
+            [["a"], ["b"], ["c"]],
+            {"a": {"b": {"c": [None], "d": 2}}},
+        ),
+        (
+            {"a": {"b": {"c": None, "d": 2}}},
+            [["a"], ["b"]],
+            {"a": {"b": [{"c": None, "d": 2}]}},
+        ),
+        (
+            {"a": {"b": {"c": None, "d": 2}}},
+            [["a"], ["b"], ["c", "d"]],
+            {"a": {"b": {"c": [None], "d": [2]}}},
+        ),
+    ],
+)
+def test_set_dict_leaf_to_list(dictionary, keys, expected):
+    outcome = set_dict_leaf_to_list(dictionary, *keys)
+    assert outcome == expected
