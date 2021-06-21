@@ -204,8 +204,15 @@ def test_select_fail(payload, pointers, message):
     assert str(value_error.value) == message
 
 
+def summate(x, y):
+    try:
+        return sum(x + y)
+    except TypeError:
+        return x + y
+
+
 @pytest.mark.parametrize(
-    "payload, path, expected",
+    "payload, path, aggregation, expected",
     [
         (
             [
@@ -216,13 +223,30 @@ def test_select_fail(payload, pointers, message):
                 {"month": "may", "rainfall (mm)": 261},
             ],
             "$.['rainfall (mm)']",
+            lambda x, y: x + y,
             [
                 {"month": "march", "rainfall (mm)": [231, 326]},
                 {"month": "april", "rainfall (mm)": [129, 443]},
                 {"month": "may", "rainfall (mm)": [261]},
             ],
-        )
+        ),
+        (
+            [
+                {"month": "march", "rainfall (mm)": 231},
+                {"month": "march", "rainfall (mm)": 326},
+                {"month": "april", "rainfall (mm)": 129},
+                {"month": "april", "rainfall (mm)": 443},
+                {"month": "may", "rainfall (mm)": 261},
+            ],
+            "$.['rainfall (mm)']",
+            lambda x, y: summate(x, y),
+            [
+                {"month": "march", "rainfall (mm)": 557},
+                {"month": "april", "rainfall (mm)": 572},
+                {"month": "may", "rainfall (mm)": [261]},
+            ],
+        ),
     ],
 )
-def test_aggregate(payload, path, expected):
-    assert list(aggregate(payload, path)) == expected
+def test_aggregate(payload, path, aggregation, expected):
+    assert list(aggregate(payload, path, aggregation)) == expected

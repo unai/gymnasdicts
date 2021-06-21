@@ -138,7 +138,9 @@ def into(payload: Iterator[JSON], template: Callable) -> Iterator[JSON]:
             )
 
 
-def aggregate(payload: Iterator[JSON], path: str) -> Iterator[JSON]:
+def aggregate(
+    payload: Iterator[JSON], path: str, aggregation=lambda x, y: x + y
+) -> Iterator[JSON]:
     """
     :example:
         >>> _payload = [
@@ -162,7 +164,7 @@ def aggregate(payload: Iterator[JSON], path: str) -> Iterator[JSON]:
     for element in sequence:
         try:
             set_dict_leaf_to_list(element, *pointer)
-            group = aggregate_two_items(group, element, *pointer)
+            group = aggregate_two_items(group, element, *pointer, aggregation)
         except AssertionError:
             yield dict(group)
             group = element
