@@ -63,12 +63,14 @@ def parse_pointer(pointer_str: str, flatten=True) -> Tuple:
     return sum(nested_tuples, tuple())
 
 
-def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
+def aggregate_two_items(
+    left: Any, right: Any, path: Dict, aggregation: Callable
+) -> Any:
     """
     :example:
         >>> a = {"a": {"x": [3], "y": 5, "z": 9}}
         >>> b = {"a": {"x": [4], "y": 5, "z": 10}}
-        >>> aggregate_two_items(a, b, {"a": ["x", "z"]})
+        >>> aggregate_two_items(a, b, {"a": ["x", "z"]}, lambda x,y: x+y)
         {'a': {'x': [3, 4], 'y': 5, 'z': 19}}
 
     """
@@ -78,7 +80,7 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
     if isinstance(left, list):  # apply to each item
         assert len(left) == len(right)
         return [
-            aggregate_two_items(left_item, right_item, path)
+            aggregate_two_items(left_item, right_item, path, aggregation)
             for left_item, right_item in zip(left, right)
         ]
 
@@ -89,11 +91,13 @@ def aggregate_two_items(left: Any, right: Any, path: Dict) -> Any:
         ret = {}
         for key in left:
             if key not in path:  # check equal and move on
-                ret[key] = aggregate_two_items(left[key], right[key], {})
+                ret[key] = aggregate_two_items(left[key], right[key], {}, aggregation)
             elif isinstance(path, (list, tuple)):  # end of the line, sum these objects
-                ret[key] = left[key] + right[key]
+                ret[key] = aggregation(left[key], right[key])
             else:  # ..continue
-                ret[key] = aggregate_two_items(left[key], right[key], path[key])
+                ret[key] = aggregate_two_items(
+                    left[key], right[key], path[key], aggregation
+                )
 
         return ret
 

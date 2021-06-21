@@ -104,7 +104,32 @@ def test_parse_pointer_fail():
     ],
 )
 def test_compress_two_objects(left, right, pointer, expected):
-    assert aggregate_two_items(left, right, pointer) == expected
+    assert aggregate_two_items(left, right, pointer, lambda x, y: x + y) == expected
+
+
+def summate(x, y):
+    try:
+        return sum(x + y)
+    except TypeError:
+        return x + y
+
+
+@pytest.mark.parametrize(
+    "aggregation_function, expected",
+    [
+        (lambda x, y: [x, y], {"a": {"x": [[3], [4, 5, 5]], "y": 5, "z": [9, 10]}}),
+        (lambda x, y: summate(x, y), {"a": {"x": 17, "y": 5, "z": 19}}),
+        (lambda x, y: x == y, {"a": {"x": False, "y": 5, "z": False}}),
+    ],
+)
+def test_compress_two_objects_with_aggregation_func(aggregation_function, expected):
+    """same input, different outputs"""
+    a = {"a": {"x": [3], "y": 5, "z": 9}}
+    b = {"a": {"x": [4, 5, 5], "y": 5, "z": 10}}
+    assert (
+        aggregate_two_items(a, b, {"a": ["x", "z"]}, aggregation=aggregation_function)
+        == expected
+    )
 
 
 @pytest.mark.parametrize(
@@ -116,7 +141,7 @@ def test_compress_two_objects(left, right, pointer, expected):
 )
 def test_compress_two_objects_fails(left, right, path, message):
     with pytest.raises(AssertionError) as value_error:
-        aggregate_two_items(left, right, path)
+        aggregate_two_items(left, right, path, lambda x, y: x + y)
     assert str(value_error.value) == message
 
 
